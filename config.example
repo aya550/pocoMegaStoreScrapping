@@ -1,0 +1,6 @@
+# Copier ce fichier en .env (jamais commité) et ajuster si besoin.
+TARGET_URL=https://ecommerce-playground.lambdatest.io/
+MAX_ITEMS=60
+REQUEST_DELAY_SECONDS=1
+USER_AGENT=IPSII-scraping-lab/1.0
+OUTPUT_JSONL_PATH=data/staging/products.jsonl

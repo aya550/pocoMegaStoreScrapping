@@ -82,3 +82,4 @@ collected_at`. Échantillon de 8 objets réels : [`samples/sample_output.json`](
 ## Usage de l'IA
 
 Voir [`docs/AI_USAGE.md`](docs/AI_USAGE.md).
+

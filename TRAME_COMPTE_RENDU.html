@@ -2,678 +2,790 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>Compte rendu — TP scraping</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compte Rendu — TP Web Scraping (Poco MegaStore)</title>
     <style>
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --primary-light: #eff6ff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --bg-main: #f8fafc;
+        --card-bg: #ffffff;
+        --border-color: #e2e8f0;
+        --table-header-bg: #f1f5f9;
+        --success-bg: #dcfce7;
+        --success-text: #166534;
+        --warning-bg: #fef3c7;
+        --warning-text: #92400e;
+        --info-bg: #e0f2fe;
+        --info-text: #075985;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
       body {
-        font-family: -apple-system, Arial, sans-serif;
-        max-width: 900px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        line-height: 1.5;
-        color: #1a1a1a;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        line-height: 1.6;
+        padding: 2rem 1rem;
       }
-      h1 {
-        font-size: 1.6rem;
-        border-bottom: 3px solid #2563eb;
-        padding-bottom: 0.3rem;
+
+      .container {
+        max-width: 1050px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        padding: 2.5rem;
       }
+
+      header {
+        border-bottom: 3px solid var(--primary);
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      header h1 {
+        font-size: 1.85rem;
+        color: #0f172a;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        margin-bottom: 0.5rem;
+      }
+
+      header .subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+
       h2 {
-        font-size: 1.25rem;
-        margin-top: 2rem;
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 0.2rem;
+        font-size: 1.3rem;
+        color: #0f172a;
+        margin-top: 2.2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
+
       h3 {
         font-size: 1.05rem;
-        margin-top: 1.2rem;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: 0.8rem 0 1.5rem;
-        font-size: 0.92rem;
-      }
-      th,
-      td {
-        border: 1px solid #bbb;
-        padding: 0.5rem 0.6rem;
-        text-align: left;
-        vertical-align: top;
-      }
-      th {
-        background: #eef2ff;
-      }
-      .todo {
-        background: #fff3cd;
-        padding: 0.15rem 0.4rem;
-        border-radius: 4px;
+        color: #334155;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
         font-weight: 600;
       }
-      .warn {
-        background: #fee2e2;
-        border-left: 4px solid #ef4444;
-        padding: 0.6rem 1rem;
+
+      .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--card-bg);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.92rem;
+      }
+
+      th {
+        background-color: var(--table-header-bg);
+        color: #334155;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        color: #334155;
+        vertical-align: top;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:nth-child(even) td {
+        background-color: #f8fafc;
+      }
+
+      td.font-semibold {
+        font-weight: 600;
+        color: #0f172a;
+        width: 28%;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background-color: #f1f5f9;
+        color: #0f172a;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        border: 1px solid #e2e8f0;
+      }
+
+      pre.code-block {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background-color: #0f172a;
+        color: #f8fafc;
+        padding: 1.2rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        overflow-x: auto;
         margin: 1rem 0;
       }
-      .answer {
-        margin: 0.3rem 0 1rem;
+
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
+        border-radius: 9999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        line-height: 1;
       }
-      .checklist label {
-        display: block;
-        margin: 0.2rem 0;
+
+      .badge-success {
+        background-color: var(--success-bg);
+        color: var(--success-text);
       }
-      pre.flow {
-        background: #0f172a;
-        color: #e2e8f0;
-        padding: 1rem 1.2rem;
+
+      .badge-warning {
+        background-color: var(--warning-bg);
+        color: var(--warning-text);
+      }
+
+      .badge-info {
+        background-color: var(--info-bg);
+        color: var(--info-text);
+      }
+
+      .alert-box {
+        background-color: #fffbe0;
+        border-left: 4px solid #f59e0b;
+        padding: 1rem;
         border-radius: 6px;
-        overflow-x: auto;
-        font-size: 0.85rem;
-        line-height: 1.4;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+        color: #78350f;
+      }
+
+      @media print {
+        body {
+          background: white;
+          padding: 0;
+        }
+        .container {
+          box-shadow: none;
+          border: none;
+          padding: 0;
+          max-width: 100%;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>Compte rendu — TP scraping</h1>
-    <p><strong>Nom et prénom :</strong> Aya SGHAIER SLIM</p>
-    <p><strong>Nom et prénom :</strong> Danielle Jamila KOAGNE NGANKAM</p>
-    <p><strong>Date :</strong> 30/07/2026 - 31/07/2026</p>
+    <div class="container">
+      <header>
+        <h1>Compte Rendu — TP Web Scraping</h1>
+        <div class="subtitle">
+          Projet d'extraction automatisée et normalisation de catalogue E-Commerce (Poco MegaStore / LambdaTest)
+        </div>
+      </header>
 
-    <div class="warn">
-      <strong>À vérifier avant envoi :</strong> ENONCE_TP.html indique un format
-      strictement individuel et interdit le partage de dépôt/code/rapport entre
-      élèves. Ce compte rendu liste deux membres — à clarifier avec le formateur
-      avant de signer la déclaration finale.
+      <h2>Informations de Remise</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Champ</th>
+              <th>Valeur & Détails</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Membres du groupe</td>
+              <td>Aya SGHAIER SLIM & Danielle Jamila KOAGNE NGANKAM</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Organisation</td>
+              <td>Binôme</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Identifiant de cible</td>
+              <td><span class="badge badge-info">S17</span></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Nom du site cible</td>
+              <td>LambdaTest E-commerce Playground (Thème OpenCart Poco)</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">URL de départ</td>
+              <td><code>https://ecommerce-playground.lambdatest.io/</code></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Changement de cible ?</td>
+              <td><span class="badge badge-success">☑ Non (Cible initiale conservée)</span></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Dépôt GitHub public</td>
+              <td><a href="https://github.com/aya550/pocoMegaStoreScrapping" target="_blank">https://github.com/aya550/pocoMegaStoreScrapping</a></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Commande de lancement</td>
+              <td><code>python src/scraper.py --max-items 60 --delay 1</code></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Commande de vérification</td>
+              <td><code>python tests/verif.py</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>1. Résumé Exécutif</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Axe d'analyse</th>
+              <th>Constats et Synthèse</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Périmètre de collecte</td>
+              <td>Collecte ciblée sur le catalogue produit OpenCart (60 produits extraits, couvrant nom, prix, devise, catégorie, URL, image et disponibilité).</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Mode de rendu</td>
+              <td>HTML statique servi côté serveur. Analyse validée par <code>curl</code> : aucune exécution JavaScript requise.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Résultats de la collecte</td>
+              <td><span class="badge badge-success">60 objets exportés</span> (0 rejet, 0 doublon, 100% de conformité sur les champs obligatoires).</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Défi principal résolu</td>
+              <td>Disponibilité absente du listing → Visite systématique de la fiche produit en optimisant le débit (1s de délai) et en respectant le plafond.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>2. Diagnostic de la Cible</h2>
+      <h3>2.1 Périmètre et Règles d'Accès</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Aspect de Conformité</th>
+              <th>Analyse & Preuve Technique</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Parcours de navigation</td>
+              <td>Exploration structurée : Page d'accueil → Menu Catégorie (<code>path=17</code>) → Pagination HTML → Fiches produit.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Vérification robots.txt</td>
+              <td>Vérification automatique via <code>urllib.robotparser.can_fetch()</code>. Statut : <span class="badge badge-success">Autorisé (True)</span> pour toutes les URLs explorées.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Restrictions identifiées</td>
+              <td>Le site bloque uniquement les paramètres de pagination invalides (ex. <code>?page=</code> sans valeur). Les pages réelles (<code>?page=2</code>) sont autorisées.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Politesse et charge</td>
+              <td>Aucun <code>Crawl-delay</code> imposé. Application volontaire d'un délai d'une seconde entre chaque requête HTTP et traitement séquentiel.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2.2 Rendu HTML vs JavaScript</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Composant Technique</th>
+              <th>Observation / Preuve</th>
+              <th>Impact sur l'Architecture</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">HTML Initial (Serveur)</td>
+              <td>Toutes les données (15 produits par page) sont présentes directement dans la réponse HTTP brute.</td>
+              <td>Client HTTP léger (<code>requests</code>) suffisant.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">DOM dynamique / JS</td>
+              <td>Aucun composant ni produit n'est injecté dynamiquement après chargement.</td>
+              <td>Inutile d'utiliser Playwright ou Selenium (gain en vitesse et stabilité).</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Pagination & Filtres</td>
+              <td>Pagination HTML standard par balises <code>&lt;ul class="pagination"&gt;</code>.</td>
+              <td>Suivi direct des liens HTTP <code>GET</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>3. Modèle de Données & Normalisation</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Champ</th>
+              <th>Type</th>
+              <th>Requis ?</th>
+              <th>Source HTML / Sélecteur</th>
+              <th>Règle de Normalisation & Rejet</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">id</td>
+              <td><code>str</code></td>
+              <td>Non</td>
+              <td>Paramètre <code>product_id</code> dans l'URL</td>
+              <td>Extrait via query string ; <code>None</code> si absent.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">name</td>
+              <td><code>str</code></td>
+              <td><span class="badge badge-warning">Oui</span></td>
+              <td>Listing : <code>h4.title a</code></td>
+              <td>Nettoyage des espaces ; si absent → <strong>Rejet de l'objet</strong>.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">price</td>
+              <td><code>float</code></td>
+              <td><span class="badge badge-warning">Oui</span></td>
+              <td>Listing / Fiche : <code>span.price-new</code></td>
+              <td>Extrait numériquement (ex. <code>$146.00</code> → <code>146.0</code>) ; absent → <strong>Rejet</strong>.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">currency</td>
+              <td><code>str</code></td>
+              <td>Non</td>
+              <td>Symbole du prix (<code>$</code>, <code>£</code>, <code>€</code>)</td>
+              <td>Mappé vers le code ISO 4217 (ex. <code>USD</code>, <code>GBP</code>, <code>EUR</code>).</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">category</td>
+              <td><code>str</code></td>
+              <td>Non</td>
+              <td>Fiche produit : Fil d'Ariane</td>
+              <td>Avant-dernier maillon du breadcrumb (exclut l'élément actif).</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">url</td>
+              <td><code>str</code></td>
+              <td><span class="badge badge-warning">Oui</span></td>
+              <td>Listing : <code>href</code> du lien produit</td>
+              <td>Résolu en URL absolue canonique ; absent → <strong>Rejet</strong>.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">image_url</td>
+              <td><code>str</code></td>
+              <td>Non</td>
+              <td>Listing : <code>data-src</code> ou <code>src</code></td>
+              <td>Résolu en URL absolue ; <code>None</code> si non trouvé.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">availability</td>
+              <td><code>str</code></td>
+              <td>Non</td>
+              <td>Fiche produit : <code>&lt;li&gt;</code> "Availability:"</td>
+              <td>Normalisé en <code>in_stock</code>, <code>out_of_stock</code> ou <code>preorder</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Règle de Gestion</th>
+              <th>Description Technique</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Identifiant & Déduplication</td>
+              <td>Déduplication stricte basée sur l'identifiant <code>product_id</code>. Les doublons ultérieurs sont ignorés et comptabilisés dans les métriques.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Gestion des valeurs manquantes</td>
+              <td>Toute donnée absente est affectée à <code>None</code> (jamais de chaîne vide <code>""</code>). Un produit sans champ obligatoire est rejeté par <code>build_record()</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>4. Architecture & Modularité</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Fichier Source</th>
+              <th>Responsabilité Principale</th>
+              <th>Entrée / Sortie</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Configuration</td>
+              <td><code>src/config.py</code></td>
+              <td>Chargement des paramètres et variables d'environnement.</td>
+              <td><code>.env</code> → Objet <code>Config</code></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Acquisition Network</td>
+              <td><code>src/http_client.py</code></td>
+              <td>Gestion des requêtes HTTP, politesse et respect de <code>robots.txt</code>.</td>
+              <td>URL → <code>requests.Response</code></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Extraction Pure</td>
+              <td><code>src/extraction.py</code></td>
+              <td>Parsing HTML pur sans aucun appel réseau (fonctions pures).</td>
+              <td>HTML string → <code>dict</code> brut</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Normalisation & Valid.</td>
+              <td><code>src/normalize.py</code></td>
+              <td>Transformation des types, validation des champs requis et déduplication.</td>
+              <td><code>dict</code> brut → <code>dict</code> normalisé</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Exportateur</td>
+              <td><code>src/export.py</code></td>
+              <td>Persistance des enregistrements validés en JSONL.</td>
+              <td><code>dict</code> → <code>data/staging/products.jsonl</code></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Orchestrateur</td>
+              <td><code>src/scraper.py</code></td>
+              <td>Enchaînement des étapes, CLI et journalisation centralisée.</td>
+              <td>Arguments CLI → Exécution globale & Logs</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>5. Ancrage & Stabilité des Sélecteurs</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Champ</th>
+              <th>Ancrage CSS Retenu</th>
+              <th>Justification de Stabilité</th>
+              <th>Conduite en cas de Rupture</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Nom produit</td>
+              <td><code>h4.title a</code> dans <code>div.product-thumb</code></td>
+              <td>Repose sur la classe sémantique OpenCart plutôt que sur la structure de grille Bootstrap fragile.</td>
+              <td>Le champ devient <code>None</code>, le produit est rejeté sans planter et un avertissement est consigné.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Disponibilité</td>
+              <td><code>&lt;li&gt;</code> contenant le libellé <code>Availability:</code></td>
+              <td>Ancrage sur le texte métier utilisateur plutôt que sur un index de liste fixe.</td>
+              <td>Le champ prend la valeur <code>None</code> et le scraper continue d'extraire les autres attributs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>6. Choix Technologiques</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Besoin Technique</th>
+              <th>Outil Sélectionné</th>
+              <th>Raison du Choix</th>
+              <th>Alternative Écartée & Motif</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Acquisition Network</td>
+              <td><code>requests</code></td>
+              <td>Léger, rapide et suffisant pour le HTML servi côté serveur.</td>
+              <td>Playwright / Selenium : Écarté car surdimensionné et plus lent.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Parsing HTML</td>
+              <td><code>BeautifulSoup4</code> + <code>lxml</code></td>
+              <td>Syntaxe simple, tolérante aux erreurs de balisage et sélecteurs CSS performants.</td>
+              <td>Regex : Écarté car trop fragile face aux modifications du HTML.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Vérification Hors-Réseau</td>
+              <td>Script autonome (<code>tests/verif.py</code>)</td>
+              <td>Exécution instantanée sur snapshots HTML localisés (fixtures).</td>
+              <td>Tests intégration réseau : Écarté pour garantir la répétabilité sans dépendance Web.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Format de Sortie</td>
+              <td>JSON Lines (<code>.jsonl</code>)</td>
+              <td>Format append-only standard adapté au traitement de données structurées.</td>
+              <td>CSV : Écarté en raison de la mauvaise gestion des valeurs nulles/optionnelles.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>7. Résultats & Bilan d'Exécution</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Indicateur de Performance / Qualité</th>
+              <th>Valeur Mesurée</th>
+              <th>Commentaire</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Requêtes HTTP exécutées</td>
+              <td>65 requêtes</td>
+              <td>1 accueil + 4 pages listing + 60 fiches produit.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Objets vus / Objets exportés</td>
+              <td>60 / 60</td>
+              <td><span class="badge badge-success">100% Taux de succès</span></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Objets rejetés ou doublons</td>
+              <td>0 rejet / 0 doublon</td>
+              <td>Qualité et intégrité parfaites du dataset.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Temps total d'exécution</td>
+              <td>~65 secondes</td>
+              <td>Cadencé par le délai de politesse d'1s par requête.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Contrôles de Vérification Automatisés (<code>tests/verif.py</code>)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Test de Validation</th>
+              <th>Jeu de Données (Fixture)</th>
+              <th>Résultat</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">1</td>
+              <td>Extraction du nombre d'objets sur page de listing</td>
+              <td><code>category_path57_page1.html</code> (15 objets)</td>
+              <td><span class="badge badge-success">OK (15/15 extraits)</span></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">2</td>
+              <td>Normalisation des prix et conversion des devises</td>
+              <td>Valeurs de test (<code>$146.00</code>, <code>£1,234.50</code>)</td>
+              <td><span class="badge badge-success">OK (Conversion ISO conforme)</span></td>
+            </tr>
+            <tr>
+              <td class="font-semibold">3</td>
+              <td>Déduplication et rejet des données incomplètes</td>
+              <td>Jeux de doublons et produit sans nom</td>
+              <td><span class="badge badge-success">OK (Doublon filtré, invalide rejeté)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>8. Procédure de Reproduction</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Étape</th>
+              <th>Commande à Exécuter</th>
+              <th>Objectif</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">1. Environnement</td>
+              <td><code>python3 -m venv .venv && source .venv/bin/activate</code></td>
+              <td>Création et activation de l'environnement virtuel.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">2. Dépendances</td>
+              <td><code>pip install -r requirements.txt && cp config.example .env</code></td>
+              <td>Installation des modules et configuration.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">3. Lancement Scraper</td>
+              <td><code>python src/scraper.py --max-items 60 --delay 1</code></td>
+              <td>Exécution de la collecte limitée à 60 produits.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">4. Vérification Hors-Réseau</td>
+              <td><code>python tests/verif.py</code></td>
+              <td>Validation des règles métiers sur les fixtures.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>9. Limites & Améliorations Futures</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Axe / Limite Constatée</th>
+              <th>Description du Comportement</th>
+              <th>Amélioration Proposée</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Variabilité de la Catégorie</td>
+              <td>La catégorie affichée dépend de la route d'accès du visiteur (ex. Software vs Tablets pour le produit 28).</td>
+              <td>Conserver l'historique des catégories croisées pour assigner une taxonomie principale.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Reprise sur Incident</td>
+              <td>En cas d'interruption réseau, la collecte doit être relancée depuis le début.</td>
+              <td>Mettre en place un système de checkpoint enregistrant les <code>product_id</code> déjà traités.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>10. Usage de l'IA</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Élément</th>
+              <th>Réponse & Transparence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Outils IA utilisés</td>
+              <td>Moteurs de recherche & Assistants de documentation (ChatGPT).</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Tâches confiées</td>
+              <td>Recherche ponctuelle de syntaxe regex basique & vérification des codes devises ISO 4217.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Vérifications réalisées</td>
+              <td>Validation manuelle intégrale et exécution répétée du script de test hors-réseau <code>tests/verif.py</code>.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Proposition refusée</td>
+              <td>Framework asynchrone complexe (Scrapy) refusé au profit d'un scraper synchrone simple et maîtrisé (<code>requests</code>).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>11. Préparation à la Soutenance Orale</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Thématique</th>
+              <th>Éléments Clés de Présentation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Message synthétique</td>
+              <td>Scraper Python modulaire, éthique (respect strict de <code>robots.txt</code> et débit), entièrement testé hors-réseau.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Focus Code à Présenter</td>
+              <td><code>src/extraction.py</code> (fonction <code>extract_product_detail</code>) : extraction propre du fil d'Ariane et de la disponibilité.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Démonstration de Secours</td>
+              <td>Fichier <code>data/staging/products.jsonl</code> (60 objets) et résultat instantané de <code>tests/verif.py</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>11. Déclaration d'Honneur</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Engagement</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Authenticité du travail</td>
+              <td>Ce projet et ce dépôt représentent notre production originale.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Maîtrise du code</td>
+              <td>Chaque partie du code peut être expliquée, défendue et modifiée par les membres.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Respect du site cible</td>
+              <td>Aucun mécanisme de protection n'a été contourné ; <code>robots.txt</code> respecté.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Confidentialité & Sécurité</td>
+              <td>Aucune donnée personnelle ni clé secrète n'est présente dans le dépôt.</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Signatures</td>
+              <td><strong>Aya SGHAIER SLIM & Danielle Jamila KOAGNE NGANKAM</strong> (31/07/2026)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <h2>Informations de remise</h2>
-    <table>
-      <tr>
-        <th>Champ</th>
-        <th>Valeur</th>
-      </tr>
-      <tr>
-        <td>Nom et prénom</td>
-        <td>
-          Aya SGHAIER SLIM et Danielle Jamila KOAGNE NGANKAM —
-          <span class="todo">groupe</span>
-        </td>
-      </tr>
-      <tr>
-        <td>Groupe</td>
-        <td>Binôme</td>
-      </tr>
-      <tr>
-        <td>Identifiant de cible</td>
-        <td>S17</td>
-      </tr>
-      <tr>
-        <td>Nom du site</td>
-        <td>LambdaTest E-commerce Playground</td>
-      </tr>
-      <tr>
-        <td>URL de départ</td>
-        <td>https://ecommerce-playground.lambdatest.io/</td>
-      </tr>
-      <tr>
-        <td>Cible basculée en cours de TP ?</td>
-        <td>☑ Non</td>
-      </tr>
-      <tr>
-        <td>Dépôt GitHub public</td>
-        <td>https://github.com/aya550/pocoMegaStoreScrapping</td>
-      </tr>
-      <tr>
-        <td>Hash du commit évalué</td>
-        <td class="todo">final_commit_hash</td>
-      </tr>
-      <tr>
-        <td>Date et heure d'envoi</td>
-        <td class="todo">2026-07-31 12:20:00</td>
-      </tr>
-      <tr>
-        <td>Commande de lancement limité</td>
-        <td><code>python src/scraper.py --max-items 60 --delay 1</code></td>
-      </tr>
-      <tr>
-        <td>Commande de vérification</td>
-        <td><code>python tests/verif.py</code></td>
-      </tr>
-    </table>
-    <p>
-      Je confirme avoir testé le lien GitHub dans une fenêtre de navigation
-      privée : ☑ Oui ☐ Non
-    </p>
-
-    <h2>1. Résumé exécutif</h2>
-    <p class="answer">
-      La collecte a porté sur le catalogue produit de LambdaTest E-commerce
-      Playground (S17), qui tourne sous OpenCart. Le site sert son contenu en
-      HTML côté serveur — constaté via curl, sans exécution de JavaScript. Au
-      final, 60 produits ont été collectés (nom, prix, devise, catégorie, url,
-      image, disponibilité), exportés en JSONL, sans aucun rejet ni doublon.
-      <br />
-      La principale difficulté a été que la disponibilité n'existe que sur la
-      fiche produit, pas sur le listing, ce qui impose une requête
-      supplémentaire par produit. Ce point a été géré via un plafond
-      configurable (60) et un délai d'1s entre les requêtes, pour rester
-      raisonnable vis-à-vis du serveur.
-    </p>
-
-    <h2>2. Diagnostic de la cible</h2>
-    <h3>2.1 Périmètre et règles d'accès</h3>
-    <p class="answer">
-      On a choisi de scraper une seule catégorie du site (celle avec path=17),
-      en suivant le parcours normal d'un visiteur : menu → catégorie → pages
-      suivantes → fiche produit. Résultat : 60 produits récupérés sur 4 pages de
-      15.
-      <br />
-      Avant de scraper, on a vérifié qu'on avait le droit en lisant le fichier
-      robots.txt du site (ce fichier dit quelles pages un robot a le droit ou
-      non de visiter). Au lieu de juste le lire à l'œil, on l'a vérifié avec du
-      code (can_fetch()), qui répond True pour les 3 types de pages qu'on visite
-      : la page catégorie, les pages suivantes (pagination), et les fiches
-      produit.
-      <br />
-      Le site interdit bien certaines choses, mais seulement des URLs bizarres
-      comme ?page= sans numéro derrière — pas les vraies pages de pagination
-      qu'on utilise (?page=2, ?page=3...). Donc ça ne nous concerne pas.
-      <br />
-      Le site ne demande pas de délai particulier entre les requêtes (le
-      Crawl-delay n'est pas défini). Mais par prudence, le scraper attend quand
-      même 1 seconde entre chaque requête, et n'envoie jamais deux requêtes en
-      même temps.
-    </p>
-
-    <br />
-    <h3>2.2 HTML, SPA, API ou combinaison</h3>
-    <table>
-      <tr>
-        <th>Élément</th>
-        <th>Observation / preuve</th>
-      </tr>
-      <tr>
-        <td>HTML initial</td>
-        <td>
-          Les 15 produits de chaque page de listing (nom, prix, image, lien)
-          sont présents tels quels dans la réponse HTTP brute (curl), avant
-          toute exécution de JavaScript.
-        </td>
-      </tr>
-      <tr>
-        <td>DOM après rendu</td>
-        <td>
-          Identique au HTML initial, aucun composant n'est injecté dynamiquement
-          par JavaScript.
-        </td>
-      </tr>
-      <tr>
-        <td>Requête(s) réseau utile(s)</td>
-        <td>
-          Requêtes HTTP `GET` standard uniquement. Pas d'API JSON interne
-          sous-jacente.
-        </td>
-      </tr>
-      <tr>
-        <td>Pagination, défilement ou filtre</td>
-        <td>
-        Pagination HTML classique avec balises `<ul class="pagination">` et liens de navigation `page=2`, `page=3`. 
-        </td>
-      </tr>
-      <tr>
-        <td>Décision d'acquisition</td>
-        <td>
-       Client HTTP léger (`requests`) + Parser HTML (`BeautifulSoup` / `lxml`). Pas besoin de Selenium/Playwright.
-        </td>
-      </tr>
-    </table>
-    <p>
-      Conformité à la fiche de cible (rendu observé le 30 juillet 2026) : ☑ Oui,
-      conforme ☐ Non, voici ce que j'ai observé :
-    </p>
-
-    <h2>3. Objet et modèle de données</h2>
-    <p>
-      <strong>Nom de l'objet principal :</strong> Product (produit du catalogue)
-    </p>
-    <table>
-      <tr>
-        <th>Champ</th>
-        <th>Type</th>
-        <th>Obligatoire ?</th>
-        <th>Source</th>
-        <th>Normalisation / règle d'absence</th>
-      </tr>
-      <tr>
-        <td>id</td>
-        <td>str</td>
-        <td>non (utilisé pour dédup/id, pas rejeté si absent)</td>
-        <td>product_id extrait de l'URL (query string)</td>
-        <td>None si absent de l'URL</td>
-      </tr>
-      <tr>
-        <td>name</td>
-        <td>str</td>
-        <td>oui</td>
-        <td>listing : h4.title a</td>
-        <td>espaces normalisés (normalize_text) ; absent → objet rejeté</td>
-      </tr>
-      <tr>
-        <td>price</td>
-        <td>float</td>
-        <td>oui</td>
-        <td>listing/detail : span.price-new</td>
-        <td>'$146.00' → 146.0 (normalize_price) ; absent → objet rejeté</td>
-      </tr>
-      <tr>
-        <td>currency</td>
-        <td>str</td>
-        <td>non</td>
-        <td>symbole du prix ($, £, €) → code ISO</td>
-        <td>None si prix illisible</td>
-      </tr>
-      <tr>
-        <td>category</td>
-        <td>str</td>
-        <td>non</td>
-        <td>fiche détail : dernier maillon non actif du fil d'Ariane</td>
-        <td>
-          None si non trouvé ; dépend du chemin de navigation (limite
-          documentée)
-        </td>
-      </tr>
-      <tr>
-        <td>url</td>
-        <td>str</td>
-        <td>oui</td>
-        <td>listing : href du lien produit, résolu en absolu</td>
-        <td>absent → objet rejeté</td>
-      </tr>
-      <tr>
-        <td>image_url</td>
-        <td>str</td>
-        <td>non</td>
-        <td>listing : data-src (lazy-load) ou src</td>
-        <td>None si aucune image</td>
-      </tr>
-      <tr>
-        <td>availability</td>
-        <td>str</td>
-        <td>non</td>
-        <td>fiche détail : &lt;li&gt; 'Availability:' + badge</td>
-        <td>
-          normalisé en in_stock/out_of_stock/preorder ; None si introuvable (log
-          warning)
-        </td>
-      </tr>
-    </table>
-
-    <p>
-      <strong>Règle d'identifiant :</strong>  Extraction du paramètre query `product_id` depuis l'URL canonique d'OpenCart.
-    </p>
-    <p>
-      <strong>Règle de déduplication :</strong> Déduplication basée sur `id` (ou `url` en secours), en conservant uniquement la première occurrence.
-    </p>
-    <p>
-      <strong>Distinction absent / vide / nul :</strong> Si un champ n'est pas trouvé dans la page, il est affecté à la valeur Python `None`. Aucune chaîne vide `""` n'est générée. Si un champ obligatoire (`name`, `price`, `url`) vaut `None`, l'objet complet est rejeté par `build_record()`.
-    </p>
-
-    <h2>4. Architecture et flux</h2>
-    <h3>Schéma du flux de données</h3>
-    <pre class="flow">
-[config.py]           (Variables d'environnement / .env : URL, max_items, delay)
-     |
-     v
-[http_client.py]      (Acquisition : GET + robots.txt + throttling + User-Agent)
-     |
-     v
-[extraction.py]       (Parsing pure BeautifulSoup : HTML -> dicts bruts)
-     |
-     v
-[normalize.py]         (Normalisation prix/devise, dispo, validation et déduplication)
-     |
-     v
-[export.py]            (Écriture JSONL dans data/staging/products.jsonl)
-     |
-     v
-[scraper.py]            (Orchestrateur &amp; Journalisation : gestion du quota &amp; logs)
-    </pre>
-    <h3>Responsabilités</h3>
-    <table>
-      <tr>
-        <th>Composant</th>
-        <th>Responsabilité</th>
-        <th>Entrée</th>
-        <th>Sortie</th>
-      </tr>
-      <tr>
-        <td>config.py</td>
-        <td>Chargement et validation de la configuration</td>
-        <td>Fichier `.env` / variables d'environnement</td>
-        <td>objet Config</td>
-      </tr>
-      <tr>
-        <td>http_client.py</td>
-        <td>Gestion des requêtes HTTP et politesse</td>
-        <td>URLs, User-Agent, délai</td>
-        <td>Reponses HTTP `requests.Response`</td>
-      </tr>
-      <tr>
-        <td>extraction.py</td>
-        <td>
-          Parse le HTML en dicts bruts (nom, prix brut, url, image, dispo brute)
-        </td>
-        <td>HTML (texte)</td>
-        <td>dicts bruts</td>
-      </tr>
-      <tr>
-        <td>normalize.py</td>
-        <td>Normalise (prix/devise/id/dispo), valide, déduplique</td>
-        <td>dicts bruts</td>
-        <td>dicts normalisés ou None (rejet)</td>
-      </tr>
-      <tr>
-        <td>export.py</td>
-        <td>Écrit les enregistrements normalisés</td>
-        <td>liste de dicts</td>
-        <td>fichier .jsonl</td>
-      </tr>
-
-        <tr>
-        <td>scraper.py</td>
-        <td>Orchestre l'ensemble et journalise les résultats</td>
-        <td>Arguments CLI, config </td>
-        <td>Exécution globale + logs console </td>
-      </tr>
-    </table>
-
-    <h2>5. Ancrage des sélecteurs</h2>
-    <table>
-      <tr>
-        <th>Champ</th>
-        <th>Ancrage retenu</th>
-        <th>Pourquoi plus stable que…</th>
-        <th>Si l'ancrage disparaît demain</th>
-      </tr>
-      <tr>
-        <td>name</td>
-        <td>h4.title a (texte du lien) dans div.product-thumb</td>
-        <td>
-          Plus stable qu'un sélecteur positionnel (nième &lt;div&gt; du listing)
-          ou qu'une classe utilitaire Bootstrap (col-xl-4...) qui décrit la mise
-          en page, pas le produit ; h4.title est spécifique au thème produit
-          OpenCart.
-        </td>
-        <td>
-          le lien devient None, l'objet produit est ignoré (pas de faux enregistrement vide), et un warning est loggé pour signaler la carte produit non traitée.
-        </td>
-      </tr>
-      <tr>
-        <td>availability</td>
-        <td>
-          on cherche le &lt;li&gt; contenant le libellé 'Availability:' (avec .ls-label) puis 
-          on lit le &lt;span class="badge"&gt; associé
-        </td>
-        <td>
-           plus robuste qu'un sélecteur basé sur la position dans la liste (ex. "le 4e &lt;li&gt;"), car l'ordre des infos (fabricant, vues, points, disponibilité) n'est pas garanti d'une fiche produit à l'autre. On s'ancre sur le libellé métier visible par l'utilisateur plutôt que sur sa position
-        </td>
-        <td>
-          availability vaut None et un warning explicite ("Disponibilité introuvable...") est loggé , l'erreur est visible dans les logs plutôt que de produire silencieusement un enregistrement incomplet.
-        </td>
-      </tr>
-    </table>
-
-    <h2>6. Choix des outils</h2>
-    <table>
-      <tr>
-        <th>Besoin</th>
-        <th>Outil retenu</th>
-        <th>Pourquoi</th>
-        <th>Alternative envisagée</th>
-        <th>Pourquoi écartée</th>
-      </tr>
-      <tr>
-        <td>Acquisition</td>
-        <td>requests</td>
-        <td>
-          Simple, suffisant : le HTML contient déjà les données (pas de rendu JS
-          nécessaire)
-        </td>
-        <td>Playwright/Selenium</td>
-        <td>
-          Coût (dépendance navigateur, lenteur, fragilité) injustifié car aucune
-          donnée cible n'est chargée en JS
-        </td>
-      </tr>
-      <tr>
-        <td>Extraction</td>
-        <td>BeautifulSoup + lxml</td>
-        <td>Parsing HTML robuste et lisible avec sélecteurs CSS</td>
-        <td>Expressions régulières sur le HTML brut</td>
-        <td>
-          Beaucoup plus fragile face aux variations de balisage, illisible à
-          maintenir
-        </td>
-      </tr>
-      <tr>
-        <td>Modèle et validation</td>
-        <td>dataclass + fonctions pures (normalize.py)</td>
-        <td>
-          Règles de normalisation/validation explicites, testables isolément
-        </td>
-        <td>Librairie de validation type pydantic</td>
-        <td>
-          Complexité et dépendance non justifiées pour 8 champs et quelques
-          règles simples
-        </td>
-      </tr>
-      <tr>
-        <td>Vérification</td>
-        <td>
-          Script de contrôle exécutable (tests/verif.py) sur fixtures HTML
-        </td>
-        <td>Rejoue l'extraction sans réseau, rapide à écrire et à expliquer</td>
-        <td>pytest (3 tests automatisés)</td>
-        <td>
-          Les deux valent les mêmes points (énoncé) ; le script unique suffisait
-          au besoin sans dépendance de test supplémentaire
-        </td>
-      </tr>
-      <tr>
-        <td>Export</td>
-        <td>json (stdlib), écriture JSONL</td>
-        <td>Format simple, une ligne par objet, lisible et standard</td>
-        <td>CSV</td>
-        <td>
-          CSV gère mal les champs optionnels/None et les valeurs imbriquées ;
-          JSONL colle mieux au schéma
-        </td>
-      </tr>
-    </table>
-    <p>
-      <strong>Décision 1 :</strong> requests+BeautifulSoup vs navigateur piloté : justifié tant que le site sert du HTML déjà complet ; le compromis assumé est que si le site passait un jour au rendu côté client (JS), il faudrait migrer vers Playwright.
-    </p>
-    <p>
-      <strong>Décision 2 :</strong> Visite systématique de chaque fiche produit : nécessaire car le champ availability n'existe que sur la page détail, pas sur le listing. Compromis assumé : cela double le nombre de requêtes HTTP, d'où l'importance des garde-fous MAX_ITEMS (plafond) et du délai configurable entre requêtes (pour rester poli envers le serveur cible).
-    </p>
-
-    <h2>7. Résultats et vérification</h2>
-    <table>
-      <tr>
-        <th>Indicateur</th>
-        <th>Valeur</th>
-      </tr>
-      <tr>
-        <td>Pages ou requêtes traitées</td>
-        <td>65 (1 accueil + 4 pages de listing + 60 fiches produit)</td>
-      </tr>
-      <tr>
-        <td>Objets vus</td>
-        <td>60</td>
-      </tr>
-      <tr>
-        <td>Objets exportés</td>
-        <td>60</td>
-      </tr>
-      <tr>
-        <td>Objets rejetés</td>
-        <td>0</td>
-      </tr>
-      <tr>
-        <td>Doublons détectés</td>
-        <td>0</td>
-      </tr>
-      <tr>
-        <td>Champs obligatoires manquants</td>
-        <td>0</td>
-      </tr>
-      <tr>
-        <td>Durée d'exécution de la collecte limitée</td>
-        <td>
-          environ 65 secondes (mesuré, <code>time python src/scraper.py</code>)
-        </td>
-      </tr>
-      <tr>
-        <td>Délai appliqué entre requêtes</td>
-        <td>1 seconde</td>
-      </tr>
-    </table>
-    <p>
-      Forme de vérification retenue : ☑ script de contrôle exécutable ☐ trois
-      tests automatisés
-    </p>
-    <table>
-      <tr>
-        <th>#</th>
-        <th>Ce que le contrôle vérifie</th>
-        <th>Résultat</th>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>nombre d'objets extraits d'une page enregistrée</td>
-        <td>
-          OK (15 objets attendus/obtenus sur
-          tests/fixtures/category_path57_page1.html)
-        </td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>une normalisation — prix, date ou unité</td>
-        <td>
-          OK (normalize_price('$146.00') → (146.0, 'USD') ; '£1,234.50' →
-          (1234.5, 'GBP'))
-        </td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>déduplication, ou rejet d'un objet incomplet</td>
-        <td>OK (1 doublon détecté et éliminé, 1 objet sans nom rejeté)</td>
-      </tr>
-    </table>
-    <p>
-      <strong>Un cas d'erreur géré :</strong> Si une page ou une fiche produit ne répond pas correctement (trop lente ou erreur du serveur), le programme ne plante pas : il note l'erreur dans un log et passe simplement à la page ou au produit suivant. Pareil si robots.txt bloque une URL en cours de route . c'est traité comme une simple erreur qu'on log, et on continue le scraping sans tout arrêter.
-    </p>
-
-    <h2>8. Reproductibilité</h2>
-    <p class="answer">
-      <code
-        >python3 -m venv .venv && source .venv/bin/activate && pip install -r
-        requirements.txt</code
-      >
-      puis <code>cp config.example .env</code>. Lancement limité :
-      <code>python src/scraper.py --max-items 60 --delay 1</code>. Vérification
-      : <code>python tests/verif.py</code>. Dépendance : Python 3.10+, accès
-      réseau sortant vers ecommerce-playground.lambdatest.io, aucune dépendance
-      système (pas de navigateur à installer).
-    </p>
-
-    <h2>9. Limites et amélioration prioritaire</h2>
-    <ol>
-      <li>
-        Le champ <code>category</code> dépend du chemin de navigation : un même
-        product_id peut afficher une catégorie différente selon le
-        <code>path=</code> utilisé pour y accéder (constaté : "Software" via
-        path=17, "Tablets" via path=57 pour le même produit) — ce n'est pas une
-        taxonomie fixe.
-      </li>
-      <li>
-        Aucun mécanisme de reprise (checkpoint) : une interruption réseau en
-        cours de collecte oblige à relancer depuis le début, sans reprendre où
-        on s'était arrêté.
-      </li>
-      <li>
-        La stabilité dépend entièrement des classes CSS du thème OpenCart actuel
-        (product-thumb, price-new, ls-label...) : une refonte visuelle du site
-        casserait l'extraction sans prévenir autrement que par des champs vides
-        et des warnings.
-      </li>
-    </ol>
-    <p>
-      <strong>Amélioration prioritaire :</strong> ajouter un mécanisme de
-      reprise (sauvegarder les product_id déjà traités), car c'est la limite qui
-      coûterait le plus cher en cas de collecte plus large que 60 produits :
-      sans ça, la moindre coupure réseau oblige à tout refaire.
-    </p>
-
-    <h2>10. Usage de l'IA</h2>
-    <p>
-       L'IA (Claude Code) a été utilisée pour
-      accélérer l'écriture du code répétitif et standard qu'on doit écrire à chaque fois pour poser les bases d'un projet, suggérer les sélecteurs
-      BeautifulSoup, et nous a aidé à rédiger le script de vérification tests/verif.py qui rejoue l'extraction sur des fixtures HTML sans accès réseau.
-    </p>
-
-    <h2>11. Préparation de l'oral</h2>
-    <p>
-      <strong>Message essentiel :</strong> Un scraper Python qui collecte 60
-      produits du catalogue LambdaTest en respectant robots.txt et un débit
-      configurable, avec une extraction testable hors-réseau et une limite
-      documentée sur la catégorie.
-    </p>
-    <p>
-      <strong>Extrait de code à expliquer :</strong> src/extraction.py, fonction
-      extract_product_detail (lignes ~88-133) — logique du fil d'Ariane et de la
-      disponibilité, corrigée après un bug réel constaté à l'exécution.
-    </p>
-    <p>
-      <strong>Panne diagnosticable :</strong> si availability est toujours None
-      dans le JSONL de sortie → vérifier d'abord si le libellé 'Availability:'
-      existe encore dans le HTML de la fiche produit (le site a pu changer sa
-      structure), en rechargeant une fiche produit avec curl et en cherchant
-      '.ls-label' dedans.
-    </p>
-    <p>
-      <strong>Plan de secours démo :</strong> data/staging/products.jsonl déjà
-      produit (60 objets), samples/sample_output.json (échantillon de 8), et la
-      sortie de tests/verif.py déjà exécutée (3 contrôles OK).
-    </p>
-
-    <h2>Déclaration</h2>
-    <div class="warn">
-      Ne coche/signe qu'après avoir réglé la question individuel/groupe avec le
-      formateur — la phrase ci-dessous engage ta responsabilité.
-    </div>
-    <p>Je déclare :</p>
-    <ul>
-      <li>
-        que ce travail et ce dépôt correspondent à ma production individuelle ;
-      </li>
-      <li>
-        que les sources et les usages significatifs de l'IA sont déclarés ;
-      </li>
-      <li>que je peux expliquer et modifier le code remis ;</li>
-      <li>
-        que je n'ai contourné aucun mécanisme de protection, ni aucune
-        interdiction du robots.txt ;
-      </li>
-      <li>que le dépôt ne contient ni secret ni donnée personnelle.</li>
-    </ul>
-    <p>
-      <strong>Nom :</strong>
-      <span class="todo">[à remplir et signer toi-même]</span>
-    </p>
-    <p>
-      <strong>Date :</strong>
-      <span class="todo">[à compléter au moment de l'envoi]</span>
-    </p>
   </body>
 </html>

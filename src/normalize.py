@@ -1,10 +1,3 @@
-"""Normalisation et validation des objets produit avant export.
-
-Règle sur les valeurs manquantes : un champ non trouvé dans le HTML vaut `None`
-(absent). Une chaîne vide `""` n'est jamais produite par ce module : soit le
-champ a une valeur, soit il est `None`. Ça distingue "le site ne l'affiche pas"
-de "le site affiche une valeur vide", qui ne se produit pas ici en pratique.
-"""
 from __future__ import annotations
 
 import logging
@@ -22,22 +15,13 @@ CURRENCY_SYMBOLS = {
 
 REQUIRED_FIELDS = ("name", "price", "url")
 
-
 def extract_product_id(url: str) -> str | None:
-    """Identifiant stable : product_id de l'URL OpenCart (query string).
-
-    Stable car réutilisé par le site lui-même d'une catégorie à l'autre pour un
-    même produit (vérifié : un même produit peut apparaître dans plusieurs
-    catégories avec la même valeur de product_id). Une réorganisation des URL
-    casserait cette règle ; documenté comme limite connue.
-    """
     query = parse_qs(urlparse(url).query)
     values = query.get("product_id")
     return values[0] if values else None
 
 
 def normalize_price(price_raw: str | None) -> tuple[float | None, str | None]:
-    """Sépare la valeur numérique et la devise à partir d'un prix affiché ("$146.00")."""
     if not price_raw:
         return None, None
 
@@ -59,7 +43,6 @@ def normalize_price(price_raw: str | None) -> tuple[float | None, str | None]:
 
 
 def normalize_availability(raw: str | None) -> str | None:
-    """Normalise le texte de disponibilité vers un vocabulaire restreint."""
     if not raw:
         return None
     text = raw.strip().lower()
@@ -80,8 +63,6 @@ def normalize_text(raw: str | None) -> str | None:
 
 
 def build_record(raw_item: dict, collected_at: datetime | None = None) -> dict | None:
-    """Construit un enregistrement normalisé à partir d'un item brut fusionné
-    (listing + détail). Retourne None si un champ obligatoire manque."""
     collected_at = collected_at or datetime.now(timezone.utc)
 
     product_id = extract_product_id(raw_item.get("url", ""))
@@ -114,11 +95,6 @@ def build_record(raw_item: dict, collected_at: datetime | None = None) -> dict |
 
 
 def deduplicate(records: list[dict]) -> tuple[list[dict], int]:
-    """Déduplique sur `id` (à défaut, sur `url`). Conserve la première occurrence.
-
-    Un même produit apparaît souvent dans plusieurs catégories du site : la
-    déduplication sur l'identifiant produit évite de l'exporter en double.
-    """
     seen: set[str] = set()
     unique: list[dict] = []
     duplicates = 0

@@ -1,8 +1,3 @@
-"""Orchestrateur : acquisition -> extraction -> normalisation -> export.
-
-Cible : https://ecommerce-playground.lambdatest.io/ (catalogue OpenCart, S17).
-Usage : python src/scraper.py [--max-items N] [--delay S] [--output PATH]
-"""
 from __future__ import annotations
 
 import argparse
@@ -30,8 +25,6 @@ logger = logging.getLogger("scraper")
 
 
 def collect(client: HttpClient, base_url: str, max_items: int) -> list[dict]:
-    """Parcourt menu catégories -> pagination -> fiches produit, jusqu'à max_items
-    produits *vus*. Retourne la liste des items bruts fusionnés (listing + détail)."""
     home_response = client.get(base_url)
     category_urls = extract_category_paths(home_response.text, base_url)
     logger.info("%d catégorie(s) trouvée(s) dans le menu", len(category_urls))

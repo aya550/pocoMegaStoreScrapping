@@ -1,8 +1,3 @@
-"""Extraction : transforme du HTML (déjà téléchargé) en objets bruts (dicts de chaînes).
-
-Chaque fonction ici est pure : HTML en entrée, dicts en sortie, aucun accès réseau.
-C'est ce module que `tests/verif.py` rejoue sur des pages enregistrées.
-"""
 from __future__ import annotations
 
 import logging
@@ -16,7 +11,6 @@ CATEGORY_LINK_SELECTOR = 'a[href*="route=product/category"]'
 
 
 def extract_category_paths(home_html: str, base_url: str) -> list[str]:
-    """Récupère les URLs de catégories depuis le menu de la page d'accueil."""
     soup = BeautifulSoup(home_html, "lxml")
     urls: set[str] = set()
     for a in soup.select(CATEGORY_LINK_SELECTOR):
@@ -27,15 +21,6 @@ def extract_category_paths(home_html: str, base_url: str) -> list[str]:
 
 
 def extract_listing_items(listing_html: str, base_url: str) -> list[dict]:
-    """Extrait les produits d'une page de listing (catégorie, une page de pagination).
-
-    Ancrage retenu : `div.product-thumb` (racine de chaque carte produit), puis
-    `h4.title a` pour le nom/URL et `div.price span` pour le prix affiché.
-    Ces classes sont celles du thème OpenCart utilisé par le site (constatées le
-    30/07/2026, cf. fiche_descriptive.md) : plus stables qu'un sélecteur positionnel
-    (nième <div>) ou qu'une classe utilitaire Bootstrap (col-xl-4...) qui décrit la
-    mise en page, pas le produit.
-    """
     soup = BeautifulSoup(listing_html, "lxml")
     items = []
     cards = soup.select("div.product-thumb")
@@ -73,7 +58,6 @@ def extract_listing_items(listing_html: str, base_url: str) -> list[dict]:
 
 
 def extract_pagination_next(listing_html: str, base_url: str) -> str | None:
-    """Retourne l'URL de la page suivante si elle existe, sinon None."""
     soup = BeautifulSoup(listing_html, "lxml")
     pagination = soup.select_one("ul.pagination")
     if pagination is None:
@@ -86,17 +70,6 @@ def extract_pagination_next(listing_html: str, base_url: str) -> str | None:
 
 
 def extract_product_detail(detail_html: str) -> dict:
-    """Complète un produit avec les champs uniquement visibles sur sa fiche détail :
-    disponibilité et catégorie (fil d'Ariane).
-
-    Ancrage retenu pour la disponibilité : le `<li>` contenant le libellé
-    "Availability:" puis le `<span class="badge ...">` associé. Plus stable qu'un
-    sélecteur de position dans la liste (l'ordre des lignes — fabricant, vues,
-    points, disponibilité — n'est pas garanti), car il s'appuie sur le libellé
-    métier affiché à l'utilisateur plutôt que sur sa position.
-    Si ce libellé disparaît demain, `availability` vaut None et un warning est
-    journalisé : pas d'enregistrement silencieusement incomplet.
-    """
     soup = BeautifulSoup(detail_html, "lxml")
 
     availability = None
@@ -112,8 +85,6 @@ def extract_product_detail(detail_html: str) -> dict:
     category = None
     breadcrumb = soup.select_one(".breadcrumb")
     if breadcrumb is not None:
-        # Le dernier maillon (class "active") est la page courante, c-a-d le nom du
-        # produit : la categorie est l'avant-dernier maillon non vide.
         crumbs = [
             li.get_text(strip=True)
             for li in breadcrumb.select("li")

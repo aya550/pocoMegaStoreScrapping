@@ -58,13 +58,8 @@ pagination), d'où l'importance du plafond `MAX_ITEMS` et du délai configurable
 
 ## Limite constatée : la catégorie dépend du chemin de navigation
 
-Le même `product_id` peut afficher une catégorie différente dans son fil d'Ariane
-selon le paramètre `path=` de l'URL utilisée pour y accéder (par exemple,
-`product_id=28` affiche "Software" via `path=17` mais "Tablets" via `path=57`).
-OpenCart construit en fait le fil d'Ariane à partir du contexte de navigation, et non
-d'une catégorie canonique unique par produit.
+Un même produit n'a pas de catégorie fixe sur ce site. Par exemple:
+`product_id=28` ("HTC Touch HD") affiche "Software" comme catégorie quand on y arrive par `path=17`, mais affiche "Tablets" quand on y arrive par `path=57`. Le
+site affiche donc la catégorie du chemin par lequel on est arrivé, pas une catégorie unique et définitive du produit.
 
-Conséquence directe : le champ `category` exporté reflète la première catégorie par
-laquelle le produit a été rencontré (selon l'ordre alphabétique des URLs de
-catégories), et non une taxonomie absolue. Ce point est documenté ici plutôt que
-laissé sous silence.
+Par conséquent pour mon programme : quand il rencontre ce produit, il note la première catégorie qu'il a vue, sans savoir si c'est "la bonne".

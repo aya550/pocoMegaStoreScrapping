@@ -10,7 +10,7 @@
 - URL de départ : https://ecommerce-playground.lambdatest.io/
 - Type : catalogue e-commerce (démo publique OpenCart), rendu HTML côté serveur
 - Périmètre : menu catégories → pagination → fiches produit, jusqu'à **60 produits** (plafond configurable, jamais dépassé)
-- Détails complets du diagnostic : voir [`fiche_descriptive.md`](fiche_descriptive.md)
+- Détails complets du diagnostic : voir [`TRAME_COMPTE_RENDU.html`](TRAME_COMPTE_RENDU.html)
 
 ## Prérequis
 
@@ -23,7 +23,7 @@
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp config.example .env   # ajuster si besoin, ce fichier n'est jamais commité
+cp config.example .env
 ```
 
 ## Lancement (collecte limitée)
@@ -74,7 +74,7 @@ collected_at`. Échantillon de 8 objets réels : [`samples/sample_output.json`](
 ## Règles d'usage responsable appliquées
 
 - `robots.txt` vérifié programmatiquement (`urllib.robotparser`) avant chaque
-  requête, pas seulement lu — voir constat détaillé dans `fiche_descriptive.md`.
+  requête, pas seulement lu — voir constat détaillé dans `TRAME_COMPTE_RENDU.html`.
 - Une requête à la fois, délai configurable entre requêtes (1 s par défaut, aucun
   `Crawl-delay` déclaré par le site).
 - Volume plafonné à 60 produits (fiche de cible S17), jamais dépassé.

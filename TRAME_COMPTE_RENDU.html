@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Compte rendu — TP scraping</title>
+    <style>
+      body {
+        font-family: -apple-system, Arial, sans-serif;
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+        color: #1a1a1a;
+      }
+      h1 {
+        font-size: 1.6rem;
+        border-bottom: 3px solid #2563eb;
+        padding-bottom: 0.3rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+        margin-top: 2rem;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.2rem;
+      }
+      h3 {
+        font-size: 1.05rem;
+        margin-top: 1.2rem;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0.8rem 0 1.5rem;
+        font-size: 0.92rem;
+      }
+      th,
+      td {
+        border: 1px solid #bbb;
+        padding: 0.5rem 0.6rem;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #eef2ff;
+      }
+      .todo {
+        background: #fff3cd;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+      .warn {
+        background: #fee2e2;
+        border-left: 4px solid #ef4444;
+        padding: 0.6rem 1rem;
+        margin: 1rem 0;
+      }
+      .answer {
+        margin: 0.3rem 0 1rem;
+      }
+      .checklist label {
+        display: block;
+        margin: 0.2rem 0;
+      }
+      pre.flow {
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 1rem 1.2rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-size: 0.85rem;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Compte rendu — TP scraping</h1>
+    <p><strong>Nom et prénom :</strong> Aya SGHAIER SLIM</p>
+    <p><strong>Nom et prénom :</strong> Danielle Jamila KOAGNE NGANKAM</p>
+    <p><strong>Date :</strong> 30/07/2026 - 31/07/2026</p>
+
+    <div class="warn">
+      <strong>À vérifier avant envoi :</strong> ENONCE_TP.html indique un format
+      strictement individuel et interdit le partage de dépôt/code/rapport entre
+      élèves. Ce compte rendu liste deux membres — à clarifier avec le formateur
+      avant de signer la déclaration finale.
+    </div>
+
+    <h2>Informations de remise</h2>
+    <table>
+      <tr>
+        <th>Champ</th>
+        <th>Valeur</th>
+      </tr>
+      <tr>
+        <td>Nom et prénom</td>
+        <td>
+          Aya SGHAIER SLIM et Danielle Jamila KOAGNE NGANKAM —
+          <span class="todo">groupe</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Groupe</td>
+        <td>Binôme</td>
+      </tr>
+      <tr>
+        <td>Identifiant de cible</td>
+        <td>S17</td>
+      </tr>
+      <tr>
+        <td>Nom du site</td>
+        <td>LambdaTest E-commerce Playground</td>
+      </tr>
+      <tr>
+        <td>URL de départ</td>
+        <td>https://ecommerce-playground.lambdatest.io/</td>
+      </tr>
+      <tr>
+        <td>Cible basculée en cours de TP ?</td>
+        <td>☑ Non</td>
+      </tr>
+      <tr>
+        <td>Dépôt GitHub public</td>
+        <td>https://github.com/aya550/pocoMegaStoreScrapping</td>
+      </tr>
+      <tr>
+        <td>Hash du commit évalué</td>
+        <td class="todo"></td>
+      </tr>
+      <tr>
+        <td>Date et heure d'envoi</td>
+        <td class="todo"></td>
+      </tr>
+      <tr>
+        <td>Commande de lancement limité</td>
+        <td><code>python src/scraper.py --max-items 60 --delay 1</code></td>
+      </tr>
+      <tr>
+        <td>Commande de vérification</td>
+        <td><code>python tests/verif.py</code></td>
+      </tr>
+    </table>
+    <p>
+      Je confirme avoir testé le lien GitHub dans une fenêtre de navigation
+      privée : ☑ Oui ☐ Non
+    </p>
+
+    <h2>1. Résumé exécutif</h2>
+    <p class="answer">
+      La collecte a porté sur le catalogue produit de LambdaTest E-commerce
+      Playground (S17), qui tourne sous OpenCart. Le site sert son contenu en
+      HTML côté serveur — constaté via curl, sans exécution de JavaScript. Au
+      final, 60 produits ont été collectés (nom, prix, devise, catégorie, url,
+      image, disponibilité), exportés en JSONL, sans aucun rejet ni doublon.
+      <br />
+      La principale difficulté a été que la disponibilité n'existe que sur la
+      fiche produit, pas sur le listing, ce qui impose une requête
+      supplémentaire par produit. Ce point a été géré via un plafond
+      configurable (60) et un délai d'1s entre les requêtes, pour rester
+      raisonnable vis-à-vis du serveur.
+    </p>
+
+    <h2>2. Diagnostic de la cible</h2>
+    <h3>2.1 Périmètre et règles d'accès</h3>
+    <p class="answer">
+      On a choisi de scraper une seule catégorie du site (celle avec path=17),
+      en suivant le parcours normal d'un visiteur : menu → catégorie → pages
+      suivantes → fiche produit. Résultat : 60 produits récupérés sur 4 pages de
+      15.
+      <br />
+      Avant de scraper, on a vérifié qu'on avait le droit en lisant le fichier
+      robots.txt du site (ce fichier dit quelles pages un robot a le droit ou
+      non de visiter). Au lieu de juste le lire à l'œil, on l'a vérifié avec du
+      code (can_fetch()), qui répond True pour les 3 types de pages qu'on visite
+      : la page catégorie, les pages suivantes (pagination), et les fiches
+      produit.
+      <br />
+      Le site interdit bien certaines choses, mais seulement des URLs bizarres
+      comme ?page= sans numéro derrière — pas les vraies pages de pagination
+      qu'on utilise (?page=2, ?page=3...). Donc ça ne nous concerne pas.
+      <br />
+      Le site ne demande pas de délai particulier entre les requêtes (le
+      Crawl-delay n'est pas défini). Mais par prudence, le scraper attend quand
+      même 1 seconde entre chaque requête, et n'envoie jamais deux requêtes en
+      même temps.
+    </p>
+
+    <br />
+    <h3>2.2 HTML, SPA, API ou combinaison</h3>
+    <table>
+      <tr>
+        <th>Élément</th>
+        <th>Observation / preuve</th>
+      </tr>
+      <tr>
+        <td>HTML initial</td>
+        <td>
+          Les 15 produits de chaque page de listing (nom, prix, image, lien)
+          sont présents tels quels dans la réponse HTTP brute (curl), avant
+          toute exécution de JavaScript.
+        </td>
+      </tr>
+      <tr>
+        <td>DOM après rendu</td>
+        <td>
+          Identique au HTML initial, aucun composant n'est injecté dynamiquement
+          par JavaScript.
+        </td>
+      </tr>
+      <tr>
+        <td>Requête(s) réseau utile(s)</td>
+        <td>
+          Requêtes HTTP `GET` standard uniquement. Pas d'API JSON interne
+          sous-jacente.
+        </td>
+      </tr>
+      <tr>
+        <td>Pagination, défilement ou filtre</td>
+        <td>
+        Pagination HTML classique avec balises `<ul class="pagination">` et liens de navigation `page=2`, `page=3`. 
+        </td>
+      </tr>
+      <tr>
+        <td>Décision d'acquisition</td>
+        <td>
+       Client HTTP léger (`requests`) + Parser HTML (`BeautifulSoup` / `lxml`). Pas besoin de Selenium/Playwright.
+        </td>
+      </tr>
+    </table>
+    <p>
+      Conformité à la fiche de cible (rendu observé le 30 juillet 2026) : ☑ Oui,
+      conforme ☐ Non, voici ce que j'ai observé :
+    </p>
+
+    <h2>3. Objet et modèle de données</h2>
+    <p>
+      <strong>Nom de l'objet principal :</strong> Product (produit du catalogue)
+    </p>
+    <table>
+      <tr>
+        <th>Champ</th>
+        <th>Type</th>
+        <th>Obligatoire ?</th>
+        <th>Source</th>
+        <th>Normalisation / règle d'absence</th>
+      </tr>
+      <tr>
+        <td>id</td>
+        <td>str</td>
+        <td>non (utilisé pour dédup/id, pas rejeté si absent)</td>
+        <td>product_id extrait de l'URL (query string)</td>
+        <td>None si absent de l'URL</td>
+      </tr>
+      <tr>
+        <td>name</td>
+        <td>str</td>
+        <td>oui</td>
+        <td>listing : h4.title a</td>
+        <td>espaces normalisés (normalize_text) ; absent → objet rejeté</td>
+      </tr>
+      <tr>
+        <td>price</td>
+        <td>float</td>
+        <td>oui</td>
+        <td>listing/detail : span.price-new</td>
+        <td>'$146.00' → 146.0 (normalize_price) ; absent → objet rejeté</td>
+      </tr>
+      <tr>
+        <td>currency</td>
+        <td>str</td>
+        <td>non</td>
+        <td>symbole du prix ($, £, €) → code ISO</td>
+        <td>None si prix illisible</td>
+      </tr>
+      <tr>
+        <td>category</td>
+        <td>str</td>
+        <td>non</td>
+        <td>fiche détail : dernier maillon non actif du fil d'Ariane</td>
+        <td>
+          None si non trouvé ; dépend du chemin de navigation (limite
+          documentée)
+        </td>
+      </tr>
+      <tr>
+        <td>url</td>
+        <td>str</td>
+        <td>oui</td>
+        <td>listing : href du lien produit, résolu en absolu</td>
+        <td>absent → objet rejeté</td>
+      </tr>
+      <tr>
+        <td>image_url</td>
+        <td>str</td>
+        <td>non</td>
+        <td>listing : data-src (lazy-load) ou src</td>
+        <td>None si aucune image</td>
+      </tr>
+      <tr>
+        <td>availability</td>
+        <td>str</td>
+        <td>non</td>
+        <td>fiche détail : &lt;li&gt; 'Availability:' + badge</td>
+        <td>
+          normalisé en in_stock/out_of_stock/preorder ; None si introuvable (log
+          warning)
+        </td>
+      </tr>
+    </table>
+
+    <p>
+      <strong>Règle d'identifiant :</strong>  Extraction du paramètre query `product_id` depuis l'URL canonique d'OpenCart.
+    </p>
+    <p>
+      <strong>Règle de déduplication :</strong> Déduplication basée sur `id` (ou `url` en secours), en conservant uniquement la première occurrence.
+    </p>
+    <p>
+      <strong>Distinction absent / vide / nul :</strong> Si un champ n'est pas trouvé dans la page, il est affecté à la valeur Python `None`. Aucune chaîne vide `""` n'est générée. Si un champ obligatoire (`name`, `price`, `url`) vaut `None`, l'objet complet est rejeté par `build_record()`.
+    </p>
+
+    <h2>4. Architecture et flux</h2>
+    <h3>Schéma du flux de données</h3>
+    <pre class="flow">
+[config.py]           (Variables d'environnement / .env : URL, max_items, delay)
+     |
+     v
+[http_client.py]      (Acquisition : GET + robots.txt + throttling + User-Agent)
+     |
+     v
+[extraction.py]       (Parsing pure BeautifulSoup : HTML -> dicts bruts)
+     |
+     v
+[normalize.py]         (Normalisation prix/devise, dispo, validation et déduplication)
+     |
+     v
+[export.py]            (Écriture JSONL dans data/staging/products.jsonl)
+     |
+     v
+[scraper.py]            (Orchestrateur &amp; Journalisation : gestion du quota &amp; logs)
+    </pre>
+    <h3>Responsabilités</h3>
+    <table>
+      <tr>
+        <th>Composant</th>
+        <th>Responsabilité</th>
+        <th>Entrée</th>
+        <th>Sortie</th>
+      </tr>
+      <tr>
+        <td>config.py</td>
+        <td>Chargement et validation de la configuration</td>
+        <td>Fichier `.env` / variables d'environnement</td>
+        <td>objet Config</td>
+      </tr>
+      <tr>
+        <td>http_client.py</td>
+        <td>Gestion des requêtes HTTP et politesse</td>
+        <td>URLs, User-Agent, délai</td>
+        <td>Reponses HTTP `requests.Response`</td>
+      </tr>
+      <tr>
+        <td>extraction.py</td>
+        <td>
+          Parse le HTML en dicts bruts (nom, prix brut, url, image, dispo brute)
+        </td>
+        <td>HTML (texte)</td>
+        <td>dicts bruts</td>
+      </tr>
+      <tr>
+        <td>normalize.py</td>
+        <td>Normalise (prix/devise/id/dispo), valide, déduplique</td>
+        <td>dicts bruts</td>
+        <td>dicts normalisés ou None (rejet)</td>
+      </tr>
+      <tr>
+        <td>export.py</td>
+        <td>Écrit les enregistrements normalisés</td>
+        <td>liste de dicts</td>
+        <td>fichier .jsonl</td>
+      </tr>
+
+        <tr>
+        <td>scraper.py</td>
+        <td>Orchestre l'ensemble et journalise les résultats</td>
+        <td>Arguments CLI, config </td>
+        <td>Exécution globale + logs console </td>
+      </tr>
+    </table>
+
+    <h2>5. Ancrage des sélecteurs</h2>
+    <table>
+      <tr>
+        <th>Champ</th>
+        <th>Ancrage retenu</th>
+        <th>Pourquoi plus stable que…</th>
+        <th>Si l'ancrage disparaît demain</th>
+      </tr>
+      <tr>
+        <td>name</td>
+        <td>h4.title a (texte du lien) dans div.product-thumb</td>
+        <td>
+          Plus stable qu'un sélecteur positionnel (nième &lt;div&gt; du listing)
+          ou qu'une classe utilitaire Bootstrap (col-xl-4...) qui décrit la mise
+          en page, pas le produit ; h4.title est spécifique au thème produit
+          OpenCart.
+        </td>
+        <td>
+          le lien devient None, l'objet produit est ignoré (pas de faux enregistrement vide), et un warning est loggé pour signaler la carte produit non traitée.
+        </td>
+      </tr>
+      <tr>
+        <td>availability</td>
+        <td>
+          on cherche le &lt;li&gt; contenant le libellé 'Availability:' (avec .ls-label) puis 
+          on lit le &lt;span class="badge"&gt; associé
+        </td>
+        <td>
+           plus robuste qu'un sélecteur basé sur la position dans la liste (ex. "le 4e &lt;li&gt;"), car l'ordre des infos (fabricant, vues, points, disponibilité) n'est pas garanti d'une fiche produit à l'autre. On s'ancre sur le libellé métier visible par l'utilisateur plutôt que sur sa position
+        </td>
+        <td>
+          availability vaut None et un warning explicite ("Disponibilité introuvable...") est loggé , l'erreur est visible dans les logs plutôt que de produire silencieusement un enregistrement incomplet.
+        </td>
+      </tr>
+    </table>
+
+    <h2>6. Choix des outils</h2>
+    <table>
+      <tr>
+        <th>Besoin</th>
+        <th>Outil retenu</th>
+        <th>Pourquoi</th>
+        <th>Alternative envisagée</th>
+        <th>Pourquoi écartée</th>
+      </tr>
+      <tr>
+        <td>Acquisition</td>
+        <td>requests</td>
+        <td>
+          Simple, suffisant : le HTML contient déjà les données (pas de rendu JS
+          nécessaire)
+        </td>
+        <td>Playwright/Selenium</td>
+        <td>
+          Coût (dépendance navigateur, lenteur, fragilité) injustifié car aucune
+          donnée cible n'est chargée en JS
+        </td>
+      </tr>
+      <tr>
+        <td>Extraction</td>
+        <td>BeautifulSoup + lxml</td>
+        <td>Parsing HTML robuste et lisible avec sélecteurs CSS</td>
+        <td>Expressions régulières sur le HTML brut</td>
+        <td>
+          Beaucoup plus fragile face aux variations de balisage, illisible à
+          maintenir
+        </td>
+      </tr>
+      <tr>
+        <td>Modèle et validation</td>
+        <td>dataclass + fonctions pures (normalize.py)</td>
+        <td>
+          Règles de normalisation/validation explicites, testables isolément
+        </td>
+        <td>Librairie de validation type pydantic</td>
+        <td>
+          Complexité et dépendance non justifiées pour 8 champs et quelques
+          règles simples
+        </td>
+      </tr>
+      <tr>
+        <td>Vérification</td>
+        <td>
+          Script de contrôle exécutable (tests/verif.py) sur fixtures HTML
+        </td>
+        <td>Rejoue l'extraction sans réseau, rapide à écrire et à expliquer</td>
+        <td>pytest (3 tests automatisés)</td>
+        <td>
+          Les deux valent les mêmes points (énoncé) ; le script unique suffisait
+          au besoin sans dépendance de test supplémentaire
+        </td>
+      </tr>
+      <tr>
+        <td>Export</td>
+        <td>json (stdlib), écriture JSONL</td>
+        <td>Format simple, une ligne par objet, lisible et standard</td>
+        <td>CSV</td>
+        <td>
+          CSV gère mal les champs optionnels/None et les valeurs imbriquées ;
+          JSONL colle mieux au schéma
+        </td>
+      </tr>
+    </table>
+    <p>
+      <strong>Décision 1 :</strong> requests+BeautifulSoup vs navigateur piloté : justifié tant que le site sert du HTML déjà complet ; le compromis assumé est que si le site passait un jour au rendu côté client (JS), il faudrait migrer vers Playwright.
+    </p>
+    <p>
+      <strong>Décision 2 :</strong> Visite systématique de chaque fiche produit : nécessaire car le champ availability n'existe que sur la page détail, pas sur le listing. Compromis assumé : cela double le nombre de requêtes HTTP, d'où l'importance des garde-fous MAX_ITEMS (plafond) et du délai configurable entre requêtes (pour rester poli envers le serveur cible).
+    </p>
+
+    <h2>7. Résultats et vérification</h2>
+    <table>
+      <tr>
+        <th>Indicateur</th>
+        <th>Valeur</th>
+      </tr>
+      <tr>
+        <td>Pages ou requêtes traitées</td>
+        <td>65 (1 accueil + 4 pages de listing + 60 fiches produit)</td>
+      </tr>
+      <tr>
+        <td>Objets vus</td>
+        <td>60</td>
+      </tr>
+      <tr>
+        <td>Objets exportés</td>
+        <td>60</td>
+      </tr>
+      <tr>
+        <td>Objets rejetés</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>Doublons détectés</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>Champs obligatoires manquants</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>Durée d'exécution de la collecte limitée</td>
+        <td>
+          environ 65 secondes (mesuré, <code>time python src/scraper.py</code>)
+        </td>
+      </tr>
+      <tr>
+        <td>Délai appliqué entre requêtes</td>
+        <td>1 seconde</td>
+      </tr>
+    </table>
+    <p>
+      Forme de vérification retenue : ☑ script de contrôle exécutable ☐ trois
+      tests automatisés
+    </p>
+    <table>
+      <tr>
+        <th>#</th>
+        <th>Ce que le contrôle vérifie</th>
+        <th>Résultat</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>nombre d'objets extraits d'une page enregistrée</td>
+        <td>
+          OK (15 objets attendus/obtenus sur
+          tests/fixtures/category_path57_page1.html)
+        </td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>une normalisation — prix, date ou unité</td>
+        <td>
+          OK (normalize_price('$146.00') → (146.0, 'USD') ; '£1,234.50' →
+          (1234.5, 'GBP'))
+        </td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>déduplication, ou rejet d'un objet incomplet</td>
+        <td>OK (1 doublon détecté et éliminé, 1 objet sans nom rejeté)</td>
+      </tr>
+    </table>
+    <p>
+      <strong>Un cas d'erreur géré :</strong> Si une page ou une fiche produit ne répond pas correctement (trop lente ou erreur du serveur), le programme ne plante pas : il note l'erreur dans un log et passe simplement à la page ou au produit suivant. Pareil si robots.txt bloque une URL en cours de route . c'est traité comme une simple erreur qu'on log, et on continue le scraping sans tout arrêter.
+    </p>
+
+    <h2>8. Reproductibilité</h2>
+    <p class="answer">
+      <code
+        >python3 -m venv .venv && source .venv/bin/activate && pip install -r
+        requirements.txt</code
+      >
+      puis <code>cp config.example .env</code>. Lancement limité :
+      <code>python src/scraper.py --max-items 60 --delay 1</code>. Vérification
+      : <code>python tests/verif.py</code>. Dépendance : Python 3.10+, accès
+      réseau sortant vers ecommerce-playground.lambdatest.io, aucune dépendance
+      système (pas de navigateur à installer).
+    </p>
+
+    <h2>9. Limites et amélioration prioritaire</h2>
+    <ol>
+      <li>
+        Le champ <code>category</code> dépend du chemin de navigation : un même
+        product_id peut afficher une catégorie différente selon le
+        <code>path=</code> utilisé pour y accéder (constaté : "Software" via
+        path=17, "Tablets" via path=57 pour le même produit) — ce n'est pas une
+        taxonomie fixe.
+      </li>
+      <li>
+        Aucun mécanisme de reprise (checkpoint) : une interruption réseau en
+        cours de collecte oblige à relancer depuis le début, sans reprendre où
+        on s'était arrêté.
+      </li>
+      <li>
+        La stabilité dépend entièrement des classes CSS du thème OpenCart actuel
+        (product-thumb, price-new, ls-label...) : une refonte visuelle du site
+        casserait l'extraction sans prévenir autrement que par des champs vides
+        et des warnings.
+      </li>
+    </ol>
+    <p>
+      <strong>Amélioration prioritaire :</strong> ajouter un mécanisme de
+      reprise (sauvegarder les product_id déjà traités), car c'est la limite qui
+      coûterait le plus cher en cas de collecte plus large que 60 produits :
+      sans ça, la moindre coupure réseau oblige à tout refaire.
+    </p>
+
+    <h2>10. Usage de l'IA</h2>
+    <p>
+       L'IA (Claude Code) a été utilisée pour
+      accélérer l'écriture du code répétitif et standard qu'on doit écrire à chaque fois pour poser les bases d'un projet, suggérer les sélecteurs
+      BeautifulSoup, et nous a aidé à rédiger le script de vérification tests/verif.py qui rejoue l'extraction sur des fixtures HTML sans accès réseau.
+    </p>
+
+    <h2>11. Préparation de l'oral</h2>
+    <p>
+      <strong>Message essentiel :</strong> Un scraper Python qui collecte 60
+      produits du catalogue LambdaTest en respectant robots.txt et un débit
+      configurable, avec une extraction testable hors-réseau et une limite
+      documentée sur la catégorie.
+    </p>
+    <p>
+      <strong>Extrait de code à expliquer :</strong> src/extraction.py, fonction
+      extract_product_detail (lignes ~88-133) — logique du fil d'Ariane et de la
+      disponibilité, corrigée après un bug réel constaté à l'exécution.
+    </p>
+    <p>
+      <strong>Panne diagnosticable :</strong> si availability est toujours None
+      dans le JSONL de sortie → vérifier d'abord si le libellé 'Availability:'
+      existe encore dans le HTML de la fiche produit (le site a pu changer sa
+      structure), en rechargeant une fiche produit avec curl et en cherchant
+      '.ls-label' dedans.
+    </p>
+    <p>
+      <strong>Plan de secours démo :</strong> data/staging/products.jsonl déjà
+      produit (60 objets), samples/sample_output.json (échantillon de 8), et la
+      sortie de tests/verif.py déjà exécutée (3 contrôles OK).
+    </p>
+
+    <h2>Déclaration</h2>
+    <div class="warn">
+      Ne coche/signe qu'après avoir réglé la question individuel/groupe avec le
+      formateur — la phrase ci-dessous engage ta responsabilité.
+    </div>
+    <p>Je déclare :</p>
+    <ul>
+      <li>
+        que ce travail et ce dépôt correspondent à ma production individuelle ;
+      </li>
+      <li>
+        que les sources et les usages significatifs de l'IA sont déclarés ;
+      </li>
+      <li>que je peux expliquer et modifier le code remis ;</li>
+      <li>
+        que je n'ai contourné aucun mécanisme de protection, ni aucune
+        interdiction du robots.txt ;
+      </li>
+      <li>que le dépôt ne contient ni secret ni donnée personnelle.</li>
+    </ul>
+    <p>
+      <strong>Nom :</strong>
+      <span class="todo">[à remplir et signer toi-même]</span>
+    </p>
+    <p>
+      <strong>Date :</strong>
+      <span class="todo">[à compléter au moment de l'envoi]</span>
+    </p>
+  </body>
+</html>

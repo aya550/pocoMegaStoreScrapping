@@ -1,8 +1,6 @@
-"""Script de contrôle exécutable, sans réseau : `python tests/verif.py`.
-
+"""Script de contrôle exécutable, sans réseau.
 Rejoue l'extraction sur une page HTML déjà enregistrée (tests/fixtures/) et
-vérifie trois points qui appartiennent au code de ce dépôt (pas à une
-bibliothèque externe) :
+vérifie trois points qui appartiennent au code de ce dépôt :
   1. le nombre d'objets extraits d'une page de listing enregistrée ;
   2. une normalisation (le prix "$146.00" -> valeur + devise) ;
   3. la déduplication et le rejet d'un objet incomplet.

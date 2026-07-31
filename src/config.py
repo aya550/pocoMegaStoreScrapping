@@ -1,4 +1,3 @@
-"""Configuration du scraper, lue depuis les variables d'environnement (.env)."""
 from dataclasses import dataclass
 import os
 

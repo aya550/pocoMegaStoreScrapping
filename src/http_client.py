@@ -1,4 +1,3 @@
-"""Acquisition : requêtes HTTP respectueuses du robots.txt et d'un débit configurable."""
 from __future__ import annotations
 
 import logging

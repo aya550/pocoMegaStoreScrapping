@@ -1,5 +1,3 @@
-# Scraper — ecommerce-playground.lambdatest.io
-
 ## Membres du groupe
 
 - Aya SGHAIER SLIM

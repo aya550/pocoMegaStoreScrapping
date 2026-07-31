@@ -1,4 +1,3 @@
-"""Export : écriture des enregistrements normalisés en JSONL."""
 from __future__ import annotations
 
 import json

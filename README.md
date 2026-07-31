@@ -9,6 +9,7 @@
 - Type : catalogue e-commerce (démo publique OpenCart), rendu HTML côté serveur
 - Périmètre : menu catégories → pagination → fiches produit, jusqu'à **60 produits** (plafond configurable, jamais dépassé)
 - Détails complets du diagnostic : voir [`docs/TRAME_COMPTE_RENDU.html`](docs/TRAME_COMPTE_RENDU.html)
+- Fiche descriptive de la cible S17 (DataHarvest) : voir [`docs/FICHE_CIBLE_S17.md`](docs/FICHE_CIBLE_S17.md)
 
 ## Prérequis
 

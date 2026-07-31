@@ -8,7 +8,7 @@
 - URL de départ : https://ecommerce-playground.lambdatest.io/
 - Type : catalogue e-commerce (démo publique OpenCart), rendu HTML côté serveur
 - Périmètre : menu catégories → pagination → fiches produit, jusqu'à **60 produits** (plafond configurable, jamais dépassé)
-- Détails complets du diagnostic : voir [`TRAME_COMPTE_RENDU.html`](TRAME_COMPTE_RENDU.html)
+- Détails complets du diagnostic : voir [`docs/TRAME_COMPTE_RENDU.html`](docs/TRAME_COMPTE_RENDU.html)
 
 ## Prérequis
 
